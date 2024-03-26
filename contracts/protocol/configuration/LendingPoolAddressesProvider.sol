@@ -57,11 +57,10 @@ contract LendingPoolAddressesProvider is Ownable, ILendingPoolAddressesProvider 
    * @param id The id
    * @param implementationAddress The address of the new implementation
    */
-  function setAddressAsProxy(bytes32 id, address implementationAddress)
-    external
-    override
-    onlyOwner
-  {
+  function setAddressAsProxy(
+    bytes32 id,
+    address implementationAddress
+  ) external override onlyOwner {
     _updateImpl(id, implementationAddress);
     emit AddressSet(id, implementationAddress, true);
   }
@@ -194,8 +193,9 @@ contract LendingPoolAddressesProvider is Ownable, ILendingPoolAddressesProvider 
   function _updateImpl(bytes32 id, address newAddress) internal {
     address payable proxyAddress = payable(_addresses[id]);
 
-    InitializableImmutableAdminUpgradeabilityProxy proxy =
-      InitializableImmutableAdminUpgradeabilityProxy(proxyAddress);
+    InitializableImmutableAdminUpgradeabilityProxy proxy = InitializableImmutableAdminUpgradeabilityProxy(
+        proxyAddress
+      );
     bytes memory params = abi.encodeWithSignature('initialize(address)', address(this));
 
     if (proxyAddress == address(0)) {
@@ -204,7 +204,7 @@ contract LendingPoolAddressesProvider is Ownable, ILendingPoolAddressesProvider 
       _addresses[id] = address(proxy);
       emit ProxyCreated(id, address(proxy));
     } else {
-      proxy.upgradeToAndCall(newAddress, params);
+      proxy.upgradeTo(newAddress);
     }
   }
 
